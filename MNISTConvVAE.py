@@ -10,7 +10,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-print(os.listdir("/storage/mnist-jpg"))
+print(os.listdir("/storage/mnist-jpg/trainingSet"))
 
 ################### SPECIFY THE DIRECTORIES AND TRANSFORMATIONS ###############################
 
