@@ -7,14 +7,13 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import os
 import math
-from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
 ################### SPECIFY THE DIRECTORIES AND TRANSFORMATIONS ###############################
 
-TRAINING_DIR = "../../datasets/mnist-jpg/trainingSet/trainingSet"
-TEST_DIR = "../../datasets/mnist-jpg/testSet"
+TRAINING_DIR = "/storage/mnist-jpg/trainingSet/trainingSet"
+TEST_DIR = "/storage/mnist-jpg/testSet"
 
 trans = transforms.Compose([
   transforms.Grayscale(),
@@ -102,7 +101,7 @@ adam = optim.SGD(ae.parameters(), lr=1e-3, momentum=0.9)
 ################ TRAIN THE MODEL #############################################################
 
 for epoch in range(50):
-  for x, _ in tqdm(trainloader):
+  for x, _ in trainloader:
     x = x.cuda().float()
     
     adam.zero_grad()
@@ -113,7 +112,7 @@ for epoch in range(50):
     train_loss.backward()
     adam.step()
 
-  for x, _ in tqdm(testloader):
+  for x, _ in testloader:
     x = x.cuda().float()
 
     x_pred, mu, logvar = ae.forward(x)
@@ -129,7 +128,7 @@ for epoch in range(50):
   ax1.imshow(pred_img, cmap='gray')
   ax2 = fig.add_subplot(2, 1, 2)
   ax2.imshow(img, cmap='gray')
-  fig.savefig("mnist_conv_vae_images/generated_image_epoch_{}.png".format(epoch+1))
+  fig.savefig("/artifacts/mnist_conv_vae_images/generated_image_epoch_{}.png".format(epoch+1))
 
   print("\n")
   print("[{}] Train Loss={} Test Loss={}".format(epoch+1, train_loss.detach().cpu().numpy(), test_loss.detach().cpu().numpy()))
@@ -137,4 +136,4 @@ for epoch in range(50):
 
 ################# SAVE THE IMAGE ##############################################################
 
-torch.save(ae.state_dict(), "mnist_conv_vae_weights.pth")
+torch.save(ae.state_dict(), "/artifacts/mnist_conv_vae_weights.pth")
