@@ -10,12 +10,10 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-print(os.listdir("/storage/mnist-jpg/trainingSet"))
-
 ################### SPECIFY THE DIRECTORIES AND TRANSFORMATIONS ###############################
 
-TRAINING_DIR = "/storage/mnist-jpg/trainingSet/trainingSet"
-TEST_DIR = "/storage/mnist-jpg/testSet"
+TRAINING_DIR = "/storage/mnist-jpg/mnist-jpg/trainingSet/trainingSet"
+TEST_DIR = "/storage/mnist-jpg/mnist-jpg/testSet"
 
 trans = transforms.Compose([
   transforms.Grayscale(),
