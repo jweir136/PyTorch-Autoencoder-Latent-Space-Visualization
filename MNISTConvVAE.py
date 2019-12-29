@@ -128,7 +128,7 @@ for epoch in range(50):
   ax1.imshow(pred_img, cmap='gray')
   ax2 = fig.add_subplot(2, 1, 2)
   ax2.imshow(img, cmap='gray')
-  fig.savefig("generated_image_epoch_{}.png".format(epoch+1))
+  fig.savefig("/artifacts/generated_image_epoch_{}.png".format(epoch+1))
 
   print("\n")
   print("[{}] Train Loss={} Test Loss={}".format(epoch+1, train_loss.detach().cpu().numpy(), test_loss.detach().cpu().numpy()))
@@ -136,4 +136,4 @@ for epoch in range(50):
 
 ################# SAVE THE IMAGE ##############################################################
 
-torch.save(ae.state_dict(), "mnist_conv_vae_weights.pth")
+torch.save(ae.state_dict(), "/artifacts/mnist_conv_vae_weights.pth")
