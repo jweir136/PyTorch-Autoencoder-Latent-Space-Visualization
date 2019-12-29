@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 
 ################### SPECIFY THE DIRECTORIES AND TRANSFORMATIONS ###############################
 
-TRAINING_DIR = "/storage/mnist-jpg/mnist-jpg/trainingSet/trainingSet"
-TEST_DIR = "/storage/mnist-jpg/mnist-jpg/testSet"
+TRAINING_DIR = "../../datasets/mnist-jpg/trainingSet/trainingSet"
+TEST_DIR = "../../datasets/mnist-jpg/testSet"
 
 trans = transforms.Compose([
   transforms.Grayscale(),
@@ -97,6 +97,9 @@ def loss_function(x_pred, x, mu, logvar):
   return mse + kl
 
 ae = MNISTAE().cuda()
+ae.load_state_dict(torch.load("mnist_conv_vae_weights.pth"))
+print("VAE LOADED!")
+sys.exit(0)
 adam = optim.SGD(ae.parameters(), lr=1e-3, momentum=0.9)
 
 ################ TRAIN THE MODEL #############################################################
