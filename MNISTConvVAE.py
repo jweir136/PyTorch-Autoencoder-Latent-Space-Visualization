@@ -10,6 +10,8 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+print(os.listdir("/storage"))
+
 ################### SPECIFY THE DIRECTORIES AND TRANSFORMATIONS ###############################
 
 TRAINING_DIR = "/storage/mnist-jpg/trainingSet/trainingSet"
