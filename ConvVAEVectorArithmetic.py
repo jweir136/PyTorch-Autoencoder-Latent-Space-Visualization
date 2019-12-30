@@ -69,6 +69,9 @@ class MNISTAE(nn.Module):
     mu, logvar = self.mu_layer(x), self.logvar_layer(x)
     return mu, logvar
 
+  def decode(self, x):
+    return self.decoder(x)
+
   """
     [!] Other methods have been ommited.
   """
@@ -76,34 +79,40 @@ class MNISTAE(nn.Module):
 ae = MNISTAE().cuda()
 ae.load_state_dict(torch.load("mnist_conv_vae_weights.pth"))
 
-data = []
-data_mu = []
-data_logvar = []
-targets = []
+df = pd.read_csv("mnist_conv_vae_dataframe.csv")
 
-n_samples = int(len(trainfolder) * 0.25)
-counter = 0
+######################### FIND THE MEAN AND STD FOR THE VALUES IN THE LATENT SPACE THAT MAKE UP 1 AND 0 ##########################
 
-for batch_x, batch_y in tqdm(trainloader):
-  batch_x = batch_x.cuda().float()
-  
-  mu, logvar = ae.encode(batch_x)
+mean_x1 = df.loc[df['hue'] == 1]['x'].mean()
+std_x1 = df.loc[df['hue'] == 1]['x'].std()
+mean_y1 = df.loc[df['hue'] == 1]['y'].mean()
+std_y1 = df.loc[df['hue'] == 1]['y'].std()
 
-  z = ae.reparam_(mu, logvar).detach().cpu().numpy()
+mean_x0 = df.loc[df['hue'] == 0]['x'].mean()
+std_x0 = df.loc[df['hue'] == 0]['x'].std()
+mean_y0 = df.loc[df['hue'] == 0]['y'].mean()
+std_y0 = df.loc[df['hue'] == 0]['y'].std()
 
-  for x, y in zip(z, batch_y):
-    data.append(x.reshape(2))
-    targets.append(y)
-    counter += 1
+######################### CREATE A NORMAL DISTRIBUTION FOR BOTH 1 AND 0 ##########################################################
 
-  if counter >= n_samples:
-    break
+dist_x_1 = torch.distributions.normal.Normal(mean_x1, std_x1)
+dist_y_1 = torch.distributions.normal.Normal(mean_y1, std_y1)
 
-data = np.array(data)
-targets = np.array(targets)
+dist_x_0 = torch.distributions.normal.Normal(mean_x0, std_x0)
+dist_y_0 = torch.distributions.normal.Normal(mean_y0, std_y0)
 
-df = pd.DataFrame({"x":data[:, 0], "y":data[:,1], "hue":targets})
-sns.scatterplot(x="x", y="y", hue="hue", data=df, legend='full')
-plt.savefig("visualizations/mnist_conv_vae_data_visualization.png")
+######################## CREATE A DIST. FOR 1 AND 0 ####################################################################################
 
-df.to_csv("mnist_conv_vae_dataframe.csv", index=False)
+sample_1 = torch.tensor([dist_x_1.sample(), dist_y_1.sample()]).cuda().float().view(1, 2).detach().cpu().numpy()
+sample_2 = torch.tensor([dist_x_0.sample(), dist_y_0.sample()]).cuda().float().view(1, 2).detach().cpu().numpy()
+
+diff = np.absolute(np.absolute(sample_2) - np.absolute(sample_1))
+half_diff = diff / 2
+
+new_sample = sample_1 + half_diff
+new_sample = torch.tensor(new_sample).cuda().float()
+
+new_img = ae.decode(new_sample).detach().cpu().numpy()[0]
+new_img = np.moveaxis(new_img, 0, -1)
+plt.imshow(new_img.reshape(28, 28), cmap='gray')
+plt.show()
